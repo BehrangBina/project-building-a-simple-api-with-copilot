@@ -15,9 +15,13 @@ Content-Type: application/json
 GET http://localhost:5231/employees/1
 Accept: application/json
 
+### Sample JWT token for testing (replace with a real one if needed)
+@jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsIm5iZiI6MTY4MDAwMDAwMCwiZXhwIjoyMzg0MDAwMDAwLCJpYXQiOjE2ODAwMDAwMDB9.2QwQn6Qw6QwQn6Qw6QwQn6Qw6QwQn6Qw6QwQn6Qw6Qw
+
 ### Update employee (replace 1 with actual id)
 PUT http://localhost:5231/employees/1
 Content-Type: application/json
+Authorization: Bearer {{jwt}}
 
 {
   "name": "Alice Smith",
@@ -26,6 +30,7 @@ Content-Type: application/json
 
 ### Delete employee (replace 1 with actual id)
 DELETE http://localhost:5231/employees/1
+Authorization: Bearer {{jwt}}
 
 ### Swagger UI
 GET http://localhost:5231/swagger 

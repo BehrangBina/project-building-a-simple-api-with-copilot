@@ -34,3 +34,11 @@ E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Swa
 E:\work\Training\project-building-a-simple-api-with-copilot\obj\Debug\net9.0\EmployeeApi.csproj.AssemblyReference.cache
 E:\work\Training\project-building-a-simple-api-with-copilot\obj\Debug\net9.0\EmployeeApi.MvcApplicationPartsAssemblyInfo.cs
 E:\work\Training\project-building-a-simple-api-with-copilot\obj\Debug\net9.0\Employee.EA8B28B7.Up2Date
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.dll
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+E:\work\Training\project-building-a-simple-api-with-copilot\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
