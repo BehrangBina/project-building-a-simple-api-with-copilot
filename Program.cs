@@ -90,14 +90,20 @@ app.MapGet("/employees", () => employees.Values);
 
 // GET employee by id
 app.MapGet("/employees/{id:int}", (int id) =>
-    employees.TryGetValue(id, out var emp) ? Results.Ok(emp) : Results.NotFound());
+{
+    if (!employees.TryGetValue(id, out var emp))
+    {
+        throw new ApiException(StatusCodes.Status404NotFound, $"Employee with ID {id} not found.");
+    }
+    return Results.Ok(emp);
+});
 
 // POST create new employee
 app.MapPost("/employees", (EmployeeCreateDto dto) =>
 {
     if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Position))
     {
-        return Results.BadRequest(new { error = "Name and Position are required." });
+        throw new ApiException(StatusCodes.Status400BadRequest, "Name and Position are required.");
     }
     var id = nextId++;
     var employee = new Employee { Id = id, Name = dto.Name, Position = dto.Position };
@@ -110,9 +116,12 @@ app.MapPut("/employees/{id:int}", (int id, EmployeeUpdateDto dto) =>
 {
     if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Position))
     {
-        return Results.BadRequest(new { error = "Name and Position are required." });
+        throw new ApiException(StatusCodes.Status400BadRequest, "Name and Position are required.");
     }
-    if (!employees.ContainsKey(id)) return Results.NotFound();
+    if (!employees.ContainsKey(id))
+    {
+        throw new ApiException(StatusCodes.Status404NotFound, $"Employee with ID {id} not found.");
+    }
     var updated = new Employee { Id = id, Name = dto.Name, Position = dto.Position };
     employees[id] = updated;
     return Results.Ok(updated);
@@ -121,7 +130,11 @@ app.MapPut("/employees/{id:int}", (int id, EmployeeUpdateDto dto) =>
 // DELETE employee
 app.MapDelete("/employees/{id:int}", (int id) =>
 {
-    return employees.TryRemove(id, out _) ? Results.NoContent() : Results.NotFound();
+    if (!employees.TryRemove(id, out _))
+    {
+        throw new ApiException(StatusCodes.Status404NotFound, $"Employee with ID {id} not found.");
+    }
+    return Results.NoContent();
 }).RequireAuthorization();
 
 // Login endpoint for JWT token generation
@@ -151,6 +164,42 @@ app.MapPost("/login", (LoginRequest login) =>
 app.MapGet("/", context => {
     context.Response.Redirect("/swagger");
     return Task.CompletedTask;
+});
+
+// Add this before the app.Run() call
+public class ApiException : Exception
+{
+    public int StatusCode { get; }
+    public string Message { get; }
+
+    public ApiException(int statusCode, string message) : base(message)
+    {
+        StatusCode = statusCode;
+        Message = message;
+    }
+}
+
+// Add this before the app.Run() call
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (ApiException ex)
+    {
+        context.Response.StatusCode = ex.StatusCode;
+        await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred." });
+        
+        // Log the actual exception details
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An unhandled exception occurred");
+    }
 });
 
 app.Run();
