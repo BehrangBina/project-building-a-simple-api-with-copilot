@@ -39,19 +39,27 @@ app.MapGet("/employees/{id:int}", (int id) =>
     employees.TryGetValue(id, out var emp) ? Results.Ok(emp) : Results.NotFound());
 
 // POST create new employee
-app.MapPost("/employees", (Employee employee) =>
+app.MapPost("/employees", (EmployeeCreateDto dto) =>
 {
+    if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Position))
+    {
+        return Results.BadRequest(new { error = "Name and Position are required." });
+    }
     var id = nextId++;
-    employee.Id = id;
+    var employee = new Employee { Id = id, Name = dto.Name, Position = dto.Position };
     employees[id] = employee;
     return Results.Created($"/employees/{id}", employee);
 });
 
 // PUT update employee
-app.MapPut("/employees/{id:int}", (int id, Employee updated) =>
+app.MapPut("/employees/{id:int}", (int id, EmployeeUpdateDto dto) =>
 {
+    if (string.IsNullOrWhiteSpace(dto.Name) || string.IsNullOrWhiteSpace(dto.Position))
+    {
+        return Results.BadRequest(new { error = "Name and Position are required." });
+    }
     if (!employees.ContainsKey(id)) return Results.NotFound();
-    updated.Id = id;
+    var updated = new Employee { Id = id, Name = dto.Name, Position = dto.Position };
     employees[id] = updated;
     return Results.Ok(updated);
 });
@@ -74,4 +82,7 @@ record Employee
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public string Position { get; set; } = string.Empty;
-} 
+}
+
+record EmployeeCreateDto(string Name, string Position);
+record EmployeeUpdateDto(string Name, string Position); 
