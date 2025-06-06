@@ -11,6 +11,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 
+// Top-level statements first
 var builder = WebApplication.CreateBuilder(args);
 
 // Add Swagger services
@@ -32,6 +33,7 @@ builder.Services.AddSwaggerGen(options =>
         {
             new OpenApiSecurityScheme
             {
+
                 Reference = new OpenApiReference
                 {
                     Type = ReferenceType.SecurityScheme,
@@ -44,7 +46,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Add JWT authentication
-var jwtKey = "super_secret_jwt_key_12345"; // In production, store securely!
+var jwtKey = "super_secret_jwt_key_12345_very_long_key!";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -68,6 +70,29 @@ app.UseSwaggerUI();
 // Enable authentication and authorization middleware
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Error handling middleware
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (ApiException ex)
+    {
+        context.Response.StatusCode = ex.StatusCode;
+        await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+    }
+    catch (Exception ex)
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred." });
+        
+        // Log the actual exception details
+        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An unhandled exception occurred");
+    }
+});
 
 // Simple in-memory store for employees
 var employees = new ConcurrentDictionary<int, Employee>(new[]
@@ -166,7 +191,8 @@ app.MapGet("/", context => {
     return Task.CompletedTask;
 });
 
-// Add this before the app.Run() call
+app.Run();
+
 public class ApiException : Exception
 {
     public int StatusCode { get; }
@@ -178,31 +204,6 @@ public class ApiException : Exception
         Message = message;
     }
 }
-
-// Add this before the app.Run() call
-app.Use(async (context, next) =>
-{
-    try
-    {
-        await next();
-    }
-    catch (ApiException ex)
-    {
-        context.Response.StatusCode = ex.StatusCode;
-        await context.Response.WriteAsJsonAsync(new { error = ex.Message });
-    }
-    catch (Exception ex)
-    {
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-        await context.Response.WriteAsJsonAsync(new { error = "An unexpected error occurred." });
-        
-        // Log the actual exception details
-        var logger = context.RequestServices.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An unhandled exception occurred");
-    }
-});
-
-app.Run();
 
 record Employee
 {
