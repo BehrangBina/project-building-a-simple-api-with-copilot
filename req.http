@@ -1,0 +1,31 @@
+### Get all employees
+GET http://localhost:5231/employees
+Accept: application/json
+
+### Create a new employee
+POST http://localhost:5231/employees
+Content-Type: application/json
+
+{
+  "name": "Alice Smith",
+  "position": "Developer"
+}
+
+### Get employee by id (replace 1 with actual id)
+GET http://localhost:5231/employees/1
+Accept: application/json
+
+### Update employee (replace 1 with actual id)
+PUT http://localhost:5231/employees/1
+Content-Type: application/json
+
+{
+  "name": "Alice Smith",
+  "position": "Senior Developer"
+}
+
+### Delete employee (replace 1 with actual id)
+DELETE http://localhost:5231/employees/1
+
+### Swagger UI
+GET http://localhost:5231/swagger 
